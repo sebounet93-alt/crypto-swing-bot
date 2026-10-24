@@ -5,26 +5,27 @@ import { useEffect, useState } from 'react';
 export default function Dashboard() {
   const [data, setData] = useState<any>({ portfolio: { cash_balance: 0 }, positions: [] });
 
-    const refreshData = () => {
+  const refreshData = () => {
     fetch('/api/dashboard')
       .then(r => r.json())
       .then(async (d) => {
         try {
-          const symbols = (d.positions || []).map((p: any) => " + p.symbol + ").join(',');
+          const symbols = (d.positions || []).map((p: any) => '"' + p.symbol + '"').join(',');
           if (symbols) {
-            const binanceRes = await fetch(https://api.binance.com/api/v3/ticker/price?symbols=[ + symbols + ]);
+            const url = 'https://api.binance.com/api/v3/ticker/price?symbols=[' + symbols + ']';
+            const binanceRes = await fetch(url);
             const binanceData = await binanceRes.json();
             d.positions = d.positions.map((p: any) => {
-              const livePrice = binanceData.find((b: any) => b.symbol === p.symbol)?.price;
-              return { ...p, current_price: livePrice ? Number(livePrice) : p.current_price };
+              const found = Array.isArray(binanceData) ? binanceData.find((b: any) => b.symbol === p.symbol) : null;
+              return { ...p, current_price: found ? Number(found.price) : p.current_price };
             });
           }
         } catch (e) {
-          console.error("Erreur API Binance", e);
+          console.error('Erreur API Binance', e);
         }
         setData(d);
       })
-      .catch(e => console.error("Erreur de chargement", e));
+      .catch(e => console.error('Erreur de chargement', e));
   };
 
   useEffect(() => {
@@ -39,8 +40,9 @@ export default function Dashboard() {
   const openPositionsValue = safePositions.reduce((t: number, p: any) => {
     const cur = Number(p.current_price) || Number(p.entry_price) || 0;
     const entry = Number(p.entry_price) || 1;
-    const invested = Number(p.invested_amount) || (Number(p.quantity || 0) * entry);
-    return t + (invested * (cur / entry));
+    const qty = Number(p.quantity) || Number(p.amount) || 0;
+    const invested = Number(p.invested_amount) || (qty * entry);
+    return t + (invested * (cur / entry) * 0.998);
   }, 0);
 
   const totalValue = Number(safeCash) + openPositionsValue;
@@ -63,7 +65,7 @@ export default function Dashboard() {
         <div className="bg-slate-900 border border-slate-800 p-4 rounded">
           <p className="text-xs text-slate-400">VALEUR DU PORTEFEUILLE</p>
           <p className="text-2xl font-bold mt-1 text-white">{totalValue.toFixed(2)} €</p>
-          <p className={`text-xs mt-1 ` + (pnlTotal >= 0 ? 'text-emerald-400' : 'text-rose-500')}>
+          <p className={'text-xs mt-1 ' + (pnlTotal >= 0 ? 'text-emerald-400' : 'text-rose-500')}>
             {pnlTotal >= 0 ? '+' : ''}{pnlTotal.toFixed(2)} € ({(pnlTotal / 10).toFixed(2)}%)
           </p>
         </div>
@@ -104,17 +106,18 @@ export default function Dashboard() {
                 safePositions.map((p: any) => {
                   const entry = Number(p.entry_price) || 1;
                   const current = Number(p.current_price) || entry;
-                  const invested = Number(p.invested_amount) || (Number(p.quantity || 0) * entry);
+                  const qty = Number(p.quantity) || Number(p.amount) || 0;
+                  const invested = Number(p.invested_amount) || (qty * entry);
                   const pnlPct = (((current * 0.998) - entry) / entry) * 100;
                   const pnlEur = invested * (pnlPct / 100);
                   
                   return (
                     <tr key={p.symbol} className="border-b border-slate-800/50">
-                      <td className="py-2 px-4 font-bold text-white">{p.symbol.replace('USDT', '')}</td>
+                      <td className="py-2 px-4 font-bold text-white">{String(p.symbol).replace('USDT', '')}</td>
                       <td className="py-2 px-4">{entry.toFixed(2)} €</td>
                       <td className="py-2 px-4">{current.toFixed(2)} €</td>
                       <td className="py-2 px-4">{invested.toFixed(2)} €</td>
-                      <td className={`py-2 px-4 ` + (pnlEur >= 0 ? 'text-emerald-400' : 'text-rose-500')}>
+                      <td className={'py-2 px-4 ' + (pnlEur >= 0 ? 'text-emerald-400' : 'text-rose-500')}>
                         {pnlEur >= 0 ? '+' : ''}{pnlEur.toFixed(2)} € ({pnlPct.toFixed(2)}%)
                       </td>
                     </tr>
@@ -128,5 +131,3 @@ export default function Dashboard() {
     </main>
   );
 }
-
-
