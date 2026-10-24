@@ -19,17 +19,18 @@ export default function Home() {
   const liveTotalBalance = Number(portfolio?.cash_balance || 0) + openPositionsValue;
 return () => clearInterval(interval);
   }, []);
-  const posArray = typeof positions !== 'undefined' ? positions : (typeof data !== 'undefined' ? data?.positions : []);
-  const cashBalance = typeof portfolio !== 'undefined' && portfolio?.cash_balance ? portfolio.cash_balance : (typeof data !== 'undefined' ? data?.cash : 0);
-  
-  const openPositionsValue = (posArray || []).reduce((t: number, p: any) => {
+  const safePositions = data?.positions || [];
+  const safeCash = data?.cash || 0;
+
+  const openPositionsValue = safePositions.reduce((t: number, p: any) => {
     const cur = Number(p.current_price) || Number(p.entry_price) || 0;
     const entry = Number(p.entry_price) || 1;
     const invested = Number(p.invested_amount) || (Number(p.amount || 0) * entry);
     return t + (invested * (cur / entry));
   }, 0);
-  
-  const totalValue = Number(cashBalance || 0) + openPositionsValue;
+
+  const totalValue = Number(safeCash) + openPositionsValue;
+  const positionsValue = openPositionsValue;
   const pnlTotal = totalValue - 1000;
 
 return (
@@ -121,6 +122,7 @@ return (
     </main>
   );
 }
+
 
 
 
