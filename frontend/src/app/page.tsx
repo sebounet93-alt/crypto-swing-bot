@@ -1,4 +1,4 @@
-ï»¿'use client';
+'use client';
 
 import { useEffect, useState } from 'react';
 
@@ -15,7 +15,9 @@ export default function Home() {
   useEffect(() => {
     refreshData();
     const interval = setInterval(refreshData, 10000);
-    return () => clearInterval(interval);
+      const openPositionsValue = (positions || []).reduce((t, p) => t + ((Number(p.invested_amount) || 0) * ((Number(p.current_price) || Number(p.entry_price)) / (Number(p.entry_price) || 1))), 0);
+  const liveTotalBalance = Number(portfolio?.cash_balance || 0) + openPositionsValue;
+return () => clearInterval(interval);
   }, []);
 
   if (!data) {
@@ -28,7 +30,9 @@ export default function Home() {
   const totalValue = data.cash + positionsValue;
   const pnlTotal = totalValue - 1000;
 
-  return (
+    const openPositionsValue = (positions || []).reduce((t, p) => t + ((Number(p.invested_amount) || 0) * ((Number(p.current_price) || Number(p.entry_price)) / (Number(p.entry_price) || 1))), 0);
+  const liveTotalBalance = Number(portfolio?.cash_balance || 0) + openPositionsValue;
+return (
     <main className="p-6 max-w-7xl mx-auto font-mono space-y-6">
       <div className="border-b border-slate-800 pb-4 flex justify-between items-center">
         <div>
@@ -36,23 +40,23 @@ export default function Home() {
           <p className="text-xs text-slate-400 mt-1">Binance REST - Scan 15m - Timeframes 4H/1D - Frais: 0.2%</p>
         </div>
         <div className="text-xs bg-slate-900 border border-slate-800 px-3 py-1.5 rounded text-emerald-400">
-          SystÃ¨me Actif
+          Système Actif
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-slate-900 border border-slate-800 p-4 rounded">
           <p className="text-xs text-slate-400">VALEUR DU PORTEFEUILLE</p>
-          <p className="text-2xl font-bold mt-1 text-white">{totalValue.toFixed(2)} â‚¬</p>
+          <p className="text-2xl font-bold mt-1 text-white">{totalValue.toFixed(2)} €</p>
           <p className={`text-xs mt-1 ${pnlTotal >= 0 ? 'text-emerald-400' : 'text-rose-500'}`}>
-            {pnlTotal >= 0 ? '+' : ''}{pnlTotal.toFixed(2)} â‚¬ ({(pnlTotal / 10).toFixed(2)}%)
+            {pnlTotal >= 0 ? '+' : ''}{pnlTotal.toFixed(2)} € ({(pnlTotal / 10).toFixed(2)}%)
           </p>
         </div>
 
         <div className="bg-slate-900 border border-slate-800 p-4 rounded">
           <p className="text-xs text-slate-400">CASH DISPONIBLE</p>
-          <p className="text-2xl font-bold mt-1 text-sky-400">{data.cash.toFixed(2)} â‚¬</p>
-          <p className="text-xs mt-1 text-slate-500">Investi : {positionsValue.toFixed(2)} â‚¬</p>
+          <p className="text-2xl font-bold mt-1 text-sky-400">{data.cash.toFixed(2)} €</p>
+          <p className="text-xs mt-1 text-slate-500">Investi : {positionsValue.toFixed(2)} €</p>
         </div>
 
         <div className="bg-slate-900 border border-slate-800 p-4 rounded">
@@ -70,7 +74,7 @@ export default function Home() {
               <thead className="text-slate-500 border-b border-slate-800">
                 <tr>
                   <th className="py-2">ACTIF</th>
-                  <th className="py-2">PRIX ENTRÃ‰E</th>
+                  <th className="py-2">PRIX ENTRÉE</th>
                   <th className="py-2">PRIX ACTUEL</th>
                   <th className="py-2">PnL LATENT</th>
                 </tr>
@@ -83,7 +87,9 @@ export default function Home() {
                     const entry = parseFloat(p.entry_price);
                     const current = parseFloat(p.current_price);
                     const pnlPct = (((current * 0.998) - entry) / entry) * 100;
-                    return (
+                      const openPositionsValue = (positions || []).reduce((t, p) => t + ((Number(p.invested_amount) || 0) * ((Number(p.current_price) || Number(p.entry_price)) / (Number(p.entry_price) || 1))), 0);
+  const liveTotalBalance = Number(portfolio?.cash_balance || 0) + openPositionsValue;
+return (
                       <tr key={p.symbol} className="border-b border-slate-800/50">
                         <td className="py-2 font-bold text-white">{p.symbol}</td>
                         <td className="py-2 text-slate-400">${entry.toFixed(4)}</td>
@@ -101,7 +107,7 @@ export default function Home() {
         </div>
 
         <div className="bg-slate-900 border border-slate-800 rounded p-4 flex flex-col h-80">
-          <h2 className="text-sm font-semibold text-slate-300 mb-3">LOGS D'EXÃ‰CUTION DU BOT</h2>
+          <h2 className="text-sm font-semibold text-slate-300 mb-3">LOGS D'EXÉCUTION DU BOT</h2>
           <div className="flex-1 overflow-y-auto space-y-1.5 text-xs text-slate-400">
             {data.logs.map((l: any) => (
               <div key={l.id} className="border-b border-slate-800/40 pb-1">
@@ -117,3 +123,4 @@ export default function Home() {
     </main>
   );
 }
+
