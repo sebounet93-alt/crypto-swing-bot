@@ -5,10 +5,23 @@ import { useEffect, useState } from 'react';
 export default function Dashboard() {
   const [data, setData] = useState<any>({ portfolio: { cash_balance: 0 }, positions: [] });
 
-  const refreshData = () => {
+    const refreshData = () => {
     fetch('/api/dashboard')
       .then(r => r.json())
-      .then(d => {
+      .then(async (d) => {
+        try {
+          const symbols = (d.positions || []).map((p: any) => " + p.symbol + ").join(',');
+          if (symbols) {
+            const binanceRes = await fetch(https://api.binance.com/api/v3/ticker/price?symbols=[ + symbols + ]);
+            const binanceData = await binanceRes.json();
+            d.positions = d.positions.map((p: any) => {
+              const livePrice = binanceData.find((b: any) => b.symbol === p.symbol)?.price;
+              return { ...p, current_price: livePrice ? Number(livePrice) : p.current_price };
+            });
+          }
+        } catch (e) {
+          console.error("Erreur API Binance", e);
+        }
         setData(d);
       })
       .catch(e => console.error("Erreur de chargement", e));
@@ -115,4 +128,5 @@ export default function Dashboard() {
     </main>
   );
 }
+
 
