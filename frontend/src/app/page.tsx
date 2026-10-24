@@ -26,7 +26,7 @@ export default function Dashboard() {
   const openPositionsValue = safePositions.reduce((t: number, p: any) => {
     const cur = Number(p.current_price) || Number(p.entry_price) || 0;
     const entry = Number(p.entry_price) || 1;
-    const invested = Number(p.invested_amount) || (Number(p.amount || 0) * entry);
+    const invested = Number(p.invested_amount) || (Number(p.quantity || 0) * entry);
     return t + (invested * (cur / entry));
   }, 0);
 
@@ -91,7 +91,7 @@ export default function Dashboard() {
                 safePositions.map((p: any) => {
                   const entry = Number(p.entry_price) || 1;
                   const current = Number(p.current_price) || entry;
-                  const invested = Number(p.invested_amount) || (Number(p.amount || 0) * entry);
+                  const invested = Number(p.invested_amount) || (Number(p.quantity || 0) * entry);
                   const pnlPct = (((current * 0.998) - entry) / entry) * 100;
                   const pnlEur = invested * (pnlPct / 100);
                   
@@ -115,3 +115,4 @@ export default function Dashboard() {
     </main>
   );
 }
+
