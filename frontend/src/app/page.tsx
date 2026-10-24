@@ -1,4 +1,4 @@
-'use client';
+ï»¿'use client';
 
 import { useEffect, useState } from 'react';
 
@@ -27,7 +27,13 @@ return () => clearInterval(interval);
   const positionsValue = data.positions.reduce((acc: number, p: any) => {
     return acc + (parseFloat(p.quantity) * parseFloat(p.current_price) * 0.998);
   }, 0);
-  const totalValue = data.cash + positionsValue;
+    const openPositionsValue = (positions || []).reduce((t: number, p: any) => {
+    const cur = Number(p.current_price) || Number(p.entry_price) || 0;
+    const entry = Number(p.entry_price) || 1;
+    const invested = Number(p.invested_amount) || (Number(p.amount || 0) * entry);
+    return t + (invested * (cur / entry));
+  }, 0);
+  const totalValue = Number(portfolio?.cash_balance || 0) + openPositionsValue;
   const pnlTotal = totalValue - 1000;
 
     const openPositionsValue = (positions || []).reduce((t, p) => t + ((Number(p.invested_amount) || 0) * ((Number(p.current_price) || Number(p.entry_price)) / (Number(p.entry_price) || 1))), 0);
@@ -40,23 +46,23 @@ return (
           <p className="text-xs text-slate-400 mt-1">Binance REST - Scan 15m - Timeframes 4H/1D - Frais: 0.2%</p>
         </div>
         <div className="text-xs bg-slate-900 border border-slate-800 px-3 py-1.5 rounded text-emerald-400">
-          Système Actif
+          SystÃ¨me Actif
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-slate-900 border border-slate-800 p-4 rounded">
           <p className="text-xs text-slate-400">VALEUR DU PORTEFEUILLE</p>
-          <p className="text-2xl font-bold mt-1 text-white">{totalValue.toFixed(2)} €</p>
+          <p className="text-2xl font-bold mt-1 text-white">{totalValue.toFixed(2)} â‚¬</p>
           <p className={`text-xs mt-1 ${pnlTotal >= 0 ? 'text-emerald-400' : 'text-rose-500'}`}>
-            {pnlTotal >= 0 ? '+' : ''}{pnlTotal.toFixed(2)} € ({(pnlTotal / 10).toFixed(2)}%)
+            {pnlTotal >= 0 ? '+' : ''}{pnlTotal.toFixed(2)} â‚¬ ({(pnlTotal / 10).toFixed(2)}%)
           </p>
         </div>
 
         <div className="bg-slate-900 border border-slate-800 p-4 rounded">
           <p className="text-xs text-slate-400">CASH DISPONIBLE</p>
-          <p className="text-2xl font-bold mt-1 text-sky-400">{data.cash.toFixed(2)} €</p>
-          <p className="text-xs mt-1 text-slate-500">Investi : {positionsValue.toFixed(2)} €</p>
+          <p className="text-2xl font-bold mt-1 text-sky-400">{data.cash.toFixed(2)} â‚¬</p>
+          <p className="text-xs mt-1 text-slate-500">Investi : {positionsValue.toFixed(2)} â‚¬</p>
         </div>
 
         <div className="bg-slate-900 border border-slate-800 p-4 rounded">
@@ -74,7 +80,7 @@ return (
               <thead className="text-slate-500 border-b border-slate-800">
                 <tr>
                   <th className="py-2">ACTIF</th>
-                  <th className="py-2">PRIX ENTRÉE</th>
+                  <th className="py-2">PRIX ENTRÃ‰E</th>
                   <th className="py-2">PRIX ACTUEL</th>
                   <th className="py-2">PnL LATENT</th>
                 </tr>
@@ -107,7 +113,7 @@ return (
         </div>
 
         <div className="bg-slate-900 border border-slate-800 rounded p-4 flex flex-col h-80">
-          <h2 className="text-sm font-semibold text-slate-300 mb-3">LOGS D'EXÉCUTION DU BOT</h2>
+          <h2 className="text-sm font-semibold text-slate-300 mb-3">LOGS D'EXÃ‰CUTION DU BOT</h2>
           <div className="flex-1 overflow-y-auto space-y-1.5 text-xs text-slate-400">
             {data.logs.map((l: any) => (
               <div key={l.id} className="border-b border-slate-800/40 pb-1">
@@ -123,4 +129,5 @@ return (
     </main>
   );
 }
+
 
