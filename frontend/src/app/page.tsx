@@ -27,7 +27,6 @@ return () => clearInterval(interval);
   const positionsValue = data.positions.reduce((acc: number, p: any) => {
     return acc + (parseFloat(p.quantity) * parseFloat(p.current_price) * 0.998);
   }, 0);
-    const openPositionsValue = (positions || []).reduce((t: number, p: any) => {
     const cur = Number(p.current_price) || Number(p.entry_price) || 0;
     const entry = Number(p.entry_price) || 1;
     const invested = Number(p.invested_amount) || (Number(p.amount || 0) * entry);
@@ -36,8 +35,6 @@ return () => clearInterval(interval);
   const totalValue = Number(portfolio?.cash_balance || 0) + openPositionsValue;
   const pnlTotal = totalValue - 1000;
 
-    const openPositionsValue = (positions || []).reduce((t, p) => t + ((Number(p.invested_amount) || 0) * ((Number(p.current_price) || Number(p.entry_price)) / (Number(p.entry_price) || 1))), 0);
-  const liveTotalBalance = Number(portfolio?.cash_balance || 0) + openPositionsValue;
 return (
     <main className="p-6 max-w-7xl mx-auto font-mono space-y-6">
       <div className="border-b border-slate-800 pb-4 flex justify-between items-center">
@@ -93,8 +90,6 @@ return (
                     const entry = parseFloat(p.entry_price);
                     const current = parseFloat(p.current_price);
                     const pnlPct = (((current * 0.998) - entry) / entry) * 100;
-                      const openPositionsValue = (positions || []).reduce((t, p) => t + ((Number(p.invested_amount) || 0) * ((Number(p.current_price) || Number(p.entry_price)) / (Number(p.entry_price) || 1))), 0);
-  const liveTotalBalance = Number(portfolio?.cash_balance || 0) + openPositionsValue;
 return (
                       <tr key={p.symbol} className="border-b border-slate-800/50">
                         <td className="py-2 font-bold text-white">{p.symbol}</td>
